@@ -1,31 +1,11 @@
 resource "aws_instance" "terraform-ec2" {
-  # ami = "ami-062f0cc54dbfd8ef1"
-  ami = var.ami_id
-  # instance_type = "t2.micro"
-  instance_type = var.instance_type
-  # count = 2
-  count = var.instance_count
+  ami = var.instance_config.ami_id
+  instance_type = var.instance_config.instance_type
+  count = var.instance_config.instance_count
   key_name = "aayushvm"
   tags = {
-    Name = var.instance_name
+    Name = var.instance_config.instance_name
   }
-
-  connection {
-    type = "ssh"
-    user = "ec2-user"
-    private_key = file("/mnt/c/Users/as699/OneDrive/Desktop/aayu_DevOps/cloud/aayushvm.pem")
-    host = self.public_ip
-  }
-
-  provisioner "remote-exec" {
-    inline = [ 
-        "sudo yum update -y",
-        "sudo yum install nginx",
-        "sudo systemctl start nginx",
-        "sudo systemctl enable nginx",
-     ]
-  }
-
 }
 
 
@@ -41,8 +21,6 @@ resource "aws_security_group" "sg_example" {
             protocol         = "tcp"
             cidr_blocks      = ["0.0.0.0/0"]
         }
-    
-    # ipv6_cidr_blocks = ["::/0"]
   }
 
   egress {

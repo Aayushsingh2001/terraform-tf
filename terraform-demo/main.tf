@@ -5,10 +5,24 @@ provider "aws" {
 
 module "WebServer" {
   source = "./modules/ec2"
-  instance_count = 1
-  instance_name = "My TF Web Server"
+  instance_config = {
+    ami_id = var.instance_config.ami_id
+    instance_count = var.instance_config.instance_count
+    instance_type = var.instance_config.instance_type
+    instance_name = "Webserver-${var.instance_config.instance_name}"
+    security_group_name = "Modified security group"
+  }
+}
 
-  security_group_name = "Modified security group"
+module "BackendServer" {
+  source = "./modules/ec2"
+  instance_config = {
+    ami_id = var.instance_config.ami_id
+    instance_count = var.instance_config.instance_count
+    instance_type = var.instance_config.instance_type
+    instance_name = "Backend-${var.instance_config.instance_name}"
+    security_group_name = "Modified security group"
+  }
 }
 
 # module "WebServer_security" {
@@ -29,14 +43,14 @@ module "WebServer" {
 #   }
 # }
 
-resource "aws_s3_bucket" "example" {
-  bucket = "my-tf-aayush-bucket"
+# resource "aws_s3_bucket" "example" {
+#   bucket = "my-tf-aayush-bucket"
 
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-}
+#   tags = {
+#     Name        = "My bucket"
+#     Environment = "Dev"
+#   }
+# }
 
 # resource "aws_security_group" "sg_example" {
 #   name = "terraform_allow_group"
@@ -73,11 +87,11 @@ resource "aws_s3_bucket" "example" {
 #   }
 # }
 
-terraform {
-  backend "s3" {
-    bucket = "my-tf-aayush-bucket"
-    region = "us-east-1"
-    # use_lockfile = true
-    # dynamodb_table = "terraform-lock"
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket = "my-tf-aayush-bucket"
+#     region = "us-east-1"
+#     # use_lockfile = true
+#     # dynamodb_table = "terraform-lock"
+#   }
+# }
