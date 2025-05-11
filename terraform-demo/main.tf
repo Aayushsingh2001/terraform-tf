@@ -3,6 +3,21 @@ provider "aws" {
   region = var.aws_region
 }
 
+module "TerraformVPC" {
+  source = "./modules/vpc"
+  vpc_config = {
+    cidr_block = "10.0.0.0/16"
+    instance_tenancy = "default"
+    enable_dns_hostnames = true
+  }
+
+  subnet_config = {
+    cidr_block = "10.0.1.0/24"
+    availability_zone = "ap-south-1a"
+    map_public_ip_on_launch = true
+  }
+}
+
 module "WebServer" {
   source = "./modules/ec2"
   instance_config = {
@@ -10,7 +25,11 @@ module "WebServer" {
     instance_count = var.instance_config.instance_count
     instance_type = var.instance_config.instance_type
     instance_name = "Webserver-${var.instance_config.instance_name}"
-    security_group_name = "Modified security group"
+  }
+  security_group_name = "Modified security group"
+  vpc_config = {
+    vpc_id = module.TerraformVPC.vpc_id
+    subnet_id = module.TerraformVPC.subnet_id  
   }
 }
 
@@ -21,7 +40,12 @@ module "BackendServer" {
     instance_count = var.instance_config.instance_count
     instance_type = var.instance_config.instance_type
     instance_name = "Backend-${var.instance_config.instance_name}"
-    security_group_name = "Modified security group"
+  }
+  security_group_name = "Modified security group"
+
+  vpc_config = {
+    vpc_id = module.TerraformVPC.vpc_id
+    subnet_id = module.TerraformVPC.subnet_id  
   }
 }
 
